@@ -7,8 +7,3 @@ router.get('/', function(req, res, next) {
 });
 
 module.exports = router;
-
-//gmt@mentonit.net
-// gmt123
-// Gmt@123
-// sequelize-auto -o "/models" -d gmt -h localhost -u root
