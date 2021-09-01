@@ -1,23 +1,21 @@
 {
   "name": "gmt",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "author": "Sasikumar",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
-    "fs": "^0.0.1-security",
-    "mysql2": "^2.2.5",
-    "nodemon": "^2.0.7",
-    "path": "^0.12.7",
-    "sequelize": "^6.6.2"
-  },
-  "devDependencies": {
-    "sequelize-auto": "^0.8.3",
-    "sequelize-cli": "^6.2.0"
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^10.0.0",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "mysql2": "^2.3.0",
+    "pug": "^3.0.2",
+    "sequelize": "^6.6.5",
+    "sequelize-auto": "^0.8.4",
+    "underscore": "^1.13.1"
   }
 }
