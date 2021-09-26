@@ -19,16 +19,37 @@ target.hasMany(production, { foreignKey: 'target_id' });
 
 router.post('/postproductionhours', async function(req, res, next) {
     try {
+        // Get target ID
+        const targetResult = await target.findOne({
+            where: {
+                target_date: req.body.production_date,
+                line_id: req.body.line_id
+            }
+        });
+
+        if(targetResult.length == 0) {
+            res.status(400).json({
+                success: false,
+                status: 0,
+                message: "Please set the target to enter production value",
+                data: {
+                    error: error
+                }
+            });
+            return;
+        }
+
+
         const result = await production.create({
             production_date: req.body.production_date,
             hour: req.body.hour,
             output: req.body.output,
-            target_id: req.body.target_id
+            target_id: targetResult.id
         });
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Production Created Success",
+            message: "Production Created",
             data: {
                 production: result
             }
@@ -65,7 +86,7 @@ router.get('/productionhours', async function(req, res, next) {
                     required: true,
                     include: [{
                         model: target,
-                        attributes: ['id', 'production_hrs', 'target_date'],
+                        attributes: [['id', 'target_id'], 'production_hrs', 'target_date'],
                         required: true,
                         include: [{
                             model: production,
@@ -79,7 +100,7 @@ router.get('/productionhours', async function(req, res, next) {
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Production Fetched Success",
+            message: "Production Fetched",
             data: {
                 hour: result
             }
@@ -131,7 +152,7 @@ router.get('/productionbyhour/:date', async function(req, res, next) {
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Production Fetched Success",
+            message: "Production Fetched",
             data: {
                 hour: result
             }
@@ -192,7 +213,7 @@ router.get('/list/:date', async function(req, res, next) {
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Data Fetched Success",
+            message: "Data Fetched",
             data: flatResult
         });
     } catch (error) {
@@ -215,7 +236,7 @@ router.put('/', async function(req, res, next) {
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Production Updated Success",
+            message: "Production Updated",
             data: {
                 target: result
             }
@@ -238,7 +259,7 @@ router.delete('/:id', async function(req, res, next) {
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Production Deleted Success"
+            message: "Production Deleted"
         });
     } catch (error) {
         res.status(400).json({

@@ -18,16 +18,21 @@ target.hasMany(production, { foreignKey: 'target_id' });
 
 router.post('/', async function(req, res, next) {
     try {
-        const result = await target.create({
-            line_id: req.body.line_id,
-            target: req.body.target,
-            date: req.body.date,
-            production_hrs: req.body.production_hrs
-        });
+        const result = [];
+        for(var i = 0; i < req.body.line_id.length; i++) {
+            console.log(req.body.line_id[i]);
+            const resp = await target.create({
+                line_id: req.body.line_id[i],
+                target: req.body.target,
+                target_date: req.body.date,
+                production_hrs: req.body.production_hrs
+            })
+            result.push(resp);
+        }
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Target Created Success",
+            message: "Target Created",
             data: {
                 target: result
             }
@@ -50,12 +55,12 @@ router.put('/', async function(req, res, next) {
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Target Updated Success",
+            message: "Target Updated",
             data: {
                 target: result
             }
         });
-    } catch (err) {
+    } catch (error) {
         res.status(400).json({
             success: false,
             status: 0,
@@ -106,11 +111,9 @@ router.get('/list/:date', async function(req, res, next) {
                     model: target,
                     attributes: ['id', 'production_hrs', 'target_date', 'target'],
                     required: true,
-                    include: [{
-                        model: production,
-                        attributes: ['id', 'production_date', 'hour', 'output'],
-                        required: true,
-                    }]
+                    where: {
+                        target_date: req.params.date
+                    }
                 }]
             }]
         });
@@ -127,21 +130,18 @@ router.get('/list/:date', async function(req, res, next) {
                     const targetElement = lineElement.targets[targetindex];
                     var production_hours = targetElement.production_hrs;
                     var production_target = targetElement.target;
-                    for (let productionIndex = 0; productionIndex < targetElement.productions.length; productionIndex++) {
-                        const productionElement = targetElement.productions[productionIndex];
-                        var target_id = productionElement.id;
-                        var target_target = productionElement.target;
+                    var production_target_date = targetElement.target_date;
                         var response = {
-                            "target_id": target_id,
                             "zone_id": zone_id,
                             "zone_name": zone_name,
                             "line_id": line_id,
                             "line_name": line_name,
                             "production_hours": production_hours,
-                            "target": production_target
+                            "target": production_target,
+                            "target_date": production_target_date,
+                            "target_id": targetElement.id
                         }
                         responseArray.push(response);
-                    }
                 }
             }
         }
@@ -165,19 +165,21 @@ router.get('/list/:date', async function(req, res, next) {
 
 router.get('/details', async function(req, res, next) {
     try {
-        const result = await factory.findAll({
-            include: [{
-                model: zone,
+        const result = await zone.findAll({
+            // include: [
+                // {
+                // model: zone,
                 attributes: ['id', 'zone_name'],
                 include: [
                     { model: line, attributes: ['id', 'line_name'] }
                 ]
-            }, ]
+            // }
+        // ]
         });
         res.status(200).json({
             success: true,
             status: 1,
-            message: "Data Fetched Success",
+            message: "Data Fetched",
             data: {
                 zone: result
             }
