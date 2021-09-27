@@ -9,6 +9,7 @@ var zoneRouter = require('./controller/zone');
 var factoryRouter = require('./controller/factory');
 var targetRouter = require('./controller/target');
 var productionRouter = require('./controller/production');
+var reportRouter = require('./controller/report');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use('/zone', zoneRouter);
 app.use('/factory', factoryRouter);
 app.use('/target', targetRouter);
 app.use('/production', productionRouter);
+app.use('/report', reportRouter);
 
 
 // catch 404 and forward to error handler
