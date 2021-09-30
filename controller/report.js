@@ -2,7 +2,9 @@ var express = require('express');
 var router = express.Router();
 var _ = require("underscore");
 
-const { factory, zone, line, target, production } = require('../models/index');
+const { zone, line, target, production } = require('../models/index');
+const errorHandler = require('../util/errorHandler');
+
 line.hasOne(target, { foreignKey: 'line_id' });
 
 router.get('/:date', async function (req, res, next) {
@@ -49,13 +51,8 @@ router.get('/:date', async function (req, res, next) {
             data: result
         });
     } catch (error) {
-        console.log(error);
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: error
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 

@@ -9,6 +9,7 @@ var express = require('express');
 var router = express.Router();
 
 const { factory, zone, line, target, production } = require('../models/index');
+const errorHandler = require('../util/errorHandler');
 
 factory.hasMany(zone, { foreignKey: 'factory_id' });
 zone.hasMany(line, { foreignKey: 'zone_id' });
@@ -31,14 +32,8 @@ router.get('/', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -61,14 +56,8 @@ router.get('/:id', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 

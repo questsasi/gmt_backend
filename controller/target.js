@@ -10,6 +10,7 @@ var router = express.Router();
 var _ = require("underscore");
 
 const { factory, zone, line, target, production } = require('../models/index');
+const errorHandler = require('../util/errorHandler');
 
 factory.hasMany(zone, { foreignKey: 'factory_id' });
 zone.hasMany(line, { foreignKey: 'zone_id' });
@@ -38,14 +39,8 @@ router.post('/', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+      returnObj = errorHandler(error);
+      res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -61,14 +56,8 @@ router.put('/', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+      returnObj = errorHandler(error);
+      res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -84,14 +73,8 @@ router.delete('/:id', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+      returnObj = errorHandler(error);
+      res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -152,29 +135,21 @@ router.get('/list/:date', async function(req, res, next) {
             data: responseArray
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+      returnObj = errorHandler(error);
+      res.status(returnObj.code).json(returnObj.data);
     }
 });
 
 router.get('/details', async function(req, res, next) {
     try {
         const result = await zone.findAll({
-            // include: [
-                // {
-                // model: zone,
-                attributes: ['id', 'zone_name'],
-                include: [
-                    { model: line, attributes: ['id', 'line_name'] }
-                ]
-            // }
-        // ]
+            attributes: ['id', 'zone_name'],
+            include: [
+                { model: line, attributes: ['id', 'line_name'] }
+            ]
+        })
+        .then(function (rowPhotos) {
+            buyer.findAll()
         });
         res.status(200).json({
             success: true,
@@ -185,14 +160,8 @@ router.get('/details', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 

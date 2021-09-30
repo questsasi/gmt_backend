@@ -10,6 +10,7 @@ var router = express.Router();
 var _ = require("underscore");
 
 const { factory, zone, line, target, production } = require('../models/index');
+const errorHandler = require('../util/errorHandler');
 
 factory.hasMany(zone, { foreignKey: 'factory_id' });
 zone.hasMany(line, { foreignKey: 'zone_id' });
@@ -50,14 +51,8 @@ router.post('/postproductionhours', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -101,14 +96,8 @@ router.get('/productionhours', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -153,14 +142,8 @@ router.get('/productionbyhour/:date', async function(req, res, next) {
             }
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -212,14 +195,8 @@ router.get('/list/:date', async function(req, res, next) {
             data: flatResult
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
@@ -257,14 +234,8 @@ router.delete('/:id', async function(req, res, next) {
             message: "Production Deleted"
         });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            status: 0,
-            message: "Server Error",
-            data: {
-                error: error
-            }
-        });
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
