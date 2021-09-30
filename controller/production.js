@@ -27,18 +27,13 @@ router.post('/postproductionhours', async function(req, res, next) {
             }
         });
 
-        if(targetResult.length == 0) {
-            res.status(400).json({
+        if(targetResult) {
+            res.status(500).json({
                 success: false,
                 status: 0,
-                message: "Please set the target to enter production value",
-                data: {
-                    error: error
-                }
+                message: "Please set the target before adding production"
             });
-            return;
         }
-
 
         const result = await production.create({
             production_date: req.body.production_date,
