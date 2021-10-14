@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var _ = require("underscore");
 
-const { zone, line, target, production } = require('../models/index');
+const { zone, line, target, production, buyer, style } = require('../models/index');
 const errorHandler = require('../util/errorHandler');
 
 line.hasOne(target, { foreignKey: 'line_id' });
@@ -38,7 +38,18 @@ router.get('/:date', async function (req, res, next) {
                         required: true,
                         where: {
                             production_date: req.params.date
-                        }
+                        },
+                        include: [{
+                            model: buyer,
+                            as: 'buyer',
+                            required: true,
+                            attributes: [['id', 'buyer_id'], 'buyer_name']
+                        }, {
+                            model: style,
+                            as: 'style', 
+                            required: true,
+                            attributes: [['id', 'style_id'], 'style_name']
+                        }]
                     }]
                 }]
             }]

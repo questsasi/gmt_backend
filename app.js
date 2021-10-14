@@ -26,11 +26,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/zone', zoneRouter);
-app.use('/factory', factoryRouter);
-app.use('/target', targetRouter);
-app.use('/production', productionRouter);
-app.use('/report', reportRouter);
+app.use('/api/zone', zoneRouter);
+app.use('/api/factory', factoryRouter);
+app.use('/api/target', targetRouter);
+app.use('/api/production', productionRouter);
+app.use('/api/report', reportRouter);
 
 
 // catch 404 and forward to error handler

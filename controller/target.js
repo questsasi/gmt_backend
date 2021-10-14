@@ -9,13 +9,17 @@ var express = require('express');
 var router = express.Router();
 var _ = require("underscore");
 
-const { factory, zone, line, target, production } = require('../models/index');
+const { factory, zone, line, target, production, buyer, style } = require('../models/index');
 const errorHandler = require('../util/errorHandler');
 
 factory.hasMany(zone, { foreignKey: 'factory_id' });
 zone.hasMany(line, { foreignKey: 'zone_id' });
 line.hasMany(target, { foreignKey: 'line_id' });
 target.hasMany(production, { foreignKey: 'target_id' });
+target.belongsTo(style, { foreignKey: 'style_id' });
+target.belongsTo(buyer, { foreignKey: 'buyer_id' });
+
+
 
 router.post('/', async function(req, res, next) {
     try {
@@ -26,7 +30,9 @@ router.post('/', async function(req, res, next) {
                 line_id: req.body.line_id[i],
                 target: req.body.target,
                 target_date: req.body.date,
-                production_hrs: req.body.production_hrs
+                production_hrs: req.body.production_hrs,
+                buyer_id: req.body.buyer_id,
+                style_id: req.body.style_id
             })
             result.push(resp);
         }
@@ -96,10 +102,25 @@ router.get('/list/:date', async function(req, res, next) {
                     required: true,
                     where: {
                         target_date: req.params.date
-                    }
-                }]
+                    },
+                    include: [
+                        {
+                            model: style,
+                            attributes: ['id', 'style_name'],
+                            required: true
+                        },
+                        {
+                            model: buyer,
+                            attributes: ['id', 'buyer_name'],
+                            required: true
+                        },
+                    ]
+                },
+                ]
             }]
         });
+
+
         var responseArray = [];
         for (let zoneindex = 0; zoneindex < result.length; zoneindex++) {
             const zoneElement = result[zoneindex].dataValues;
@@ -122,7 +143,11 @@ router.get('/list/:date', async function(req, res, next) {
                             "production_hours": production_hours,
                             "target": production_target,
                             "target_date": production_target_date,
-                            "target_id": targetElement.id
+                            "target_id": targetElement.id,
+                            "style_id": targetElement.style.id,
+                            "style_name": targetElement.style.style_name,
+                            "buyer_id": targetElement.buyer.id,
+                            "buyer_name": targetElement.buyer.buyer_name
                         }
                         responseArray.push(response);
                 }
@@ -142,21 +167,21 @@ router.get('/list/:date', async function(req, res, next) {
 
 router.get('/details', async function(req, res, next) {
     try {
-        const result = await zone.findAll({
+        const zoneResult = await zone.findAll({
             attributes: ['id', 'zone_name'],
             include: [
                 { model: line, attributes: ['id', 'line_name'] }
             ]
-        })
-        .then(function (rowPhotos) {
-            buyer.findAll()
         });
+
         res.status(200).json({
             success: true,
             status: 1,
             message: "Data Fetched",
             data: {
-                zone: result
+                zones: zoneResult,
+                buyers: await buyer.findAll(),
+                styles: await style.findAll()
             }
         });
     } catch (error) {

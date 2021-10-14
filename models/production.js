@@ -26,6 +26,22 @@ module.exports = function(sequelize, DataTypes) {
         model: 'target',
         key: 'id'
       }
+    },
+    buyer_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'buyer',
+        key: 'id'
+      }
+    },
+    style_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'style',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -49,10 +65,24 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "fk_4_idx",
+        name: "fk_target_idx",
         using: "BTREE",
         fields: [
           { name: "target_id" },
+        ]
+      },
+      {
+        name: "fk_buyer_idx",
+        using: "BTREE",
+        fields: [
+          { name: "buyer_id" },
+        ]
+      },
+      {
+        name: "fk_style_prod_idx",
+        using: "BTREE",
+        fields: [
+          { name: "style_id" },
         ]
       },
     ]
