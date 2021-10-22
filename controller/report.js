@@ -141,19 +141,13 @@ function processData(zoneObj) {
       lines[line].production_hrs = lines[line].targets[0].production_hrs;
 
       // Calculation added
-      lines[line].achieved = getAchieved(
-        lines[line].targets[0].productions
-      );
-      lines[line].difference =
-        lines[line].achieved - lines[line].target_count;
-      lines[line].percent =
-        ((lines[line].achieved - lines[line].target_count) /
-          lines[line].target_count) *
-        100;
-      lines[line].percent = Math.round(lines[line].percent * 100) / 100;
+      lines[line].achieved = getAchieved(lines[line].targets[0].productions);
       lines[line].productions = lines[line].targets[0].productions;
       let oneHrCount = lines[line].target_count / lines[line].production_hrs;
       lines[line].presant = Math.round(oneHrCount * lines[line].productions.length);
+      lines[line].percent = (lines[line].achieved / lines[line].presant).toFixed(2);
+      lines[line].difference = lines[line].achieved - lines[line].presant;
+      
     }
     result.push(zoneObj[zone]);
   }
@@ -216,7 +210,11 @@ function processZoneData(zoneObj) {
     temp.hours_remaining = temp.target_hrs - temp.hours_completed;
     temp.target_presant = Math.round(temp.target_output / temp.target_hrs) * temp.hours_completed;
     temp.target_diff = temp.target_achieved - temp.target_presant;
-    temp.acheieved_percent = Math.round(temp.target_achieved / temp.target_presant);
+    temp.acheieved_percent = (temp.target_achieved / temp.target_presant).toFixed(2);
+
+    temp.target_hrs_avg = temp.target_hrs / zoneTemp.lines.length;
+    temp.hours_completed_avg = temp.hours_completed / zoneTemp.lines.length;
+    temp.hours_remaining_avg = temp.hours_remaining / zoneTemp.lines.length;
     result.push(temp);
   }
 
