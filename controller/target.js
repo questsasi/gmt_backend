@@ -25,7 +25,6 @@ router.post('/', async function(req, res, next) {
     try {
         const result = [];
         for(var i = 0; i < req.body.line_id.length; i++) {
-            console.log(req.body.line_id[i]);
             const resp = await target.create({
                 line_id: req.body.line_id[i],
                 target: req.body.target,

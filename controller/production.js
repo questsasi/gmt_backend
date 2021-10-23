@@ -245,7 +245,6 @@ router.delete('/:id', async function(req, res, next) {
 
 router.get('/getadd/:date', async function(req, res, next) {
     try {
-       console.log(req.params);
         const result = await zone.findAll({
             include: [{
                 model: line,
@@ -286,7 +285,6 @@ router.get('/getadd/:date', async function(req, res, next) {
 });
 
 function makeFlatResult(data) {
-    console.log(JSON.stringify(data));
     data = data.map(item => {
         return {
             "factory_id": item['zones.factory_id'],
