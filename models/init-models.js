@@ -5,6 +5,7 @@ var _line = require("./line");
 var _production = require("./production");
 var _style = require("./style");
 var _target = require("./target");
+var _user = require("./user");
 var _zone = require("./zone");
 
 function initModels(sequelize) {
@@ -14,6 +15,7 @@ function initModels(sequelize) {
   var production = _production(sequelize, DataTypes);
   var style = _style(sequelize, DataTypes);
   var target = _target(sequelize, DataTypes);
+  var user = _user(sequelize, DataTypes);
   var zone = _zone(sequelize, DataTypes);
 
   production.belongsTo(buyer, { as: "buyer", foreignKey: "buyer_id"});
@@ -40,6 +42,7 @@ function initModels(sequelize) {
     production,
     style,
     target,
+    user,
     zone,
   };
 }

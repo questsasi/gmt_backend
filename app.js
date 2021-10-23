@@ -11,7 +11,7 @@ var factoryRouter = require('./controller/factory');
 var targetRouter = require('./controller/target');
 var productionRouter = require('./controller/production');
 var reportRouter = require('./controller/report');
-
+var userRouter = require('./controller/user');
 var app = express();
 
 // view engine setup
@@ -31,6 +31,7 @@ app.use('/api/factory', factoryRouter);
 app.use('/api/target', targetRouter);
 app.use('/api/production', productionRouter);
 app.use('/api/report', reportRouter);
+app.use('/api/user', userRouter);
 
 
 // catch 404 and forward to error handler
