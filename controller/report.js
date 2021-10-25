@@ -15,18 +15,27 @@ router.get('/zones/:date', async function (req, res, next) {
         ["id", "zone_id"], "zone_name"
       ],
       required: true,
+      order: [
+        ['id', 'ASC']
+      ],
       include: [{
         model: line,
         attributes: [
           ['id', 'line_id'], 'line_name'
         ],
         required: true,
+        order: [
+          ['id', 'ASC']
+        ],  
         include: [{
           model: target,
           attributes: [
             ['id', 'target_id'], 'production_hrs', 'target_date', ['target', 'target_count']
           ],
           required: true,
+          order: [
+            ['id', 'ASC']
+          ],    
           where: {
             target_date: req.params.date
           },
@@ -36,6 +45,9 @@ router.get('/zones/:date', async function (req, res, next) {
               ['id', 'production_id'], 'production_date', 'hour', 'output'
             ],
             required: true,
+            order: [
+              ['id', 'ASC']
+            ],      
             where: {
               production_date: req.params.date
             },
@@ -75,18 +87,27 @@ router.get('/lines/:date', async function (req, res, next) {
         ["id", "zone_id"], "zone_name"
       ],
       required: true,
+      order: [
+        ['id', 'ASC']
+      ],
       include: [{
         model: line,
         attributes: [
           ['id', 'line_id'], 'line_name'
         ],
         required: true,
+        order: [
+          ['id', 'ASC']
+        ],  
         include: [{
           model: target,
           attributes: [
             ['id', 'target_id'], 'production_hrs', 'target_date', ['target', 'target_count']
           ],
           required: true,
+          order: [
+            ['id', 'ASC']
+          ],    
           where: {
             target_date: req.params.date
           },
@@ -96,6 +117,9 @@ router.get('/lines/:date', async function (req, res, next) {
               ['id', 'production_id'], 'production_date', 'hour', 'output'
             ],
             required: true,
+            order: [
+              ['id', 'ASC']
+            ],      
             where: {
               production_date: req.params.date
             },
