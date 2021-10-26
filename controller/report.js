@@ -26,7 +26,7 @@ router.get('/zones/:date', async function (req, res, next) {
         required: true,
         order: [
           ['id', 'ASC']
-        ],  
+        ],
         include: [{
           model: target,
           attributes: [
@@ -35,7 +35,7 @@ router.get('/zones/:date', async function (req, res, next) {
           required: true,
           order: [
             ['id', 'ASC']
-          ],    
+          ],
           where: {
             target_date: req.params.date
           },
@@ -47,7 +47,7 @@ router.get('/zones/:date', async function (req, res, next) {
             required: true,
             order: [
               ['id', 'ASC']
-            ],      
+            ],
             where: {
               production_date: req.params.date
             },
@@ -98,7 +98,7 @@ router.get('/lines/:date', async function (req, res, next) {
         required: true,
         order: [
           ['id', 'ASC']
-        ],  
+        ],
         include: [{
           model: target,
           attributes: [
@@ -107,7 +107,7 @@ router.get('/lines/:date', async function (req, res, next) {
           required: true,
           order: [
             ['id', 'ASC']
-          ],    
+          ],
           where: {
             target_date: req.params.date
           },
@@ -119,7 +119,7 @@ router.get('/lines/:date', async function (req, res, next) {
             required: true,
             order: [
               ['id', 'ASC']
-            ],      
+            ],
             where: {
               production_date: req.params.date
             },
@@ -143,7 +143,7 @@ router.get('/lines/:date', async function (req, res, next) {
       success: true,
       status: 1,
       message: "Data Fetched",
-      data: processData(result)
+      data: processLineData(result)
     });
   } catch (error) {
     returnObj = errorHandler(error);
@@ -153,11 +153,14 @@ router.get('/lines/:date', async function (req, res, next) {
 
 
 
-function processData(zoneObj) {
+function processLineData(zoneObj) {
   zoneObj = JSON.parse(JSON.stringify(zoneObj));
   let result = [];
   for (var zone = 0; zone < zoneObj.length; zone++) {
     let lines = zoneObj[zone].lines;
+    let temp_achieved_total = 0;
+    let temp_presant_total = 0;
+
     for (var line = 0; line < lines.length; line++) {
       lines[line].toggle = false;
       lines[line].target_count = lines[line].targets[0].target_count;
@@ -168,11 +171,31 @@ function processData(zoneObj) {
       lines[line].achieved = getAchieved(lines[line].targets[0].productions);
       lines[line].productions = lines[line].targets[0].productions;
       let oneHrCount = lines[line].target_count / lines[line].production_hrs;
-      lines[line].presant = Math.round(oneHrCount * lines[line].productions.length);
+      lines[line].presant = (oneHrCount * lines[line].productions.length);
       lines[line].percent = ((lines[line].achieved / lines[line].presant) * 100).toFixed(2);
       lines[line].difference = lines[line].achieved - lines[line].presant;
-      
+      lines[line].presant_hrs = lines[line].productions.length;
+      lines[line].remaining_hrs = lines[line].production_hrs - lines[line].productions.length;
+
+      temp_achieved_total += parseInt(lines[line].achieved);
+      temp_presant_total += parseInt(lines[line].presant);
     }
+
+    // Summary
+    let wholeObj = {
+      percent: (temp_achieved_total / temp_presant_total * 100).toFixed(2),
+      target_count: (lines.reduce((key, { target_count }) => key + parseInt(target_count), 0)),
+      presant: (lines.reduce((key, { presant }) => key + parseInt(presant), 0)),
+      achieved: (lines.reduce((key, { achieved }) => key + parseInt(achieved), 0)),
+      difference: (lines.reduce((key, { difference }) => key + parseInt(difference), 0)),
+      production_hrs: ((lines.reduce((key, { production_hrs }) => key + parseInt(production_hrs), 0)) / lines.length).toFixed(0),
+      presant_hrs: ((lines.reduce((key, { productions }) => key + parseInt(productions.length), 0)) / lines.length).toFixed(0),
+      remaining_hrs: 0
+    };
+    wholeObj.remaining_hrs = wholeObj.production_hrs - wholeObj.presant_hrs;
+
+    zoneObj[zone].summary = wholeObj;
+
     result.push(zoneObj[zone]);
   }
 
@@ -232,13 +255,14 @@ function processZoneData(zoneObj) {
     }
 
     temp.hours_remaining = temp.target_hrs - temp.hours_completed;
-    temp.target_presant = Math.round(temp.target_output / temp.target_hrs) * temp.hours_completed;
-    temp.target_diff = temp.target_achieved - temp.target_presant;
+    temp.target_presant = (temp.target_output / temp.target_hrs).toFixed(2) * temp.hours_completed;
+    temp.target_diff = temp.target_achieved - temp.target_presant.toFixed(0);
     temp.acheieved_percent = ((temp.target_achieved / temp.target_presant) * 100).toFixed(2);
 
     temp.target_hrs_avg = temp.target_hrs / zoneTemp.lines.length;
-    temp.hours_completed_avg = temp.hours_completed / zoneTemp.lines.length;
-    temp.hours_remaining_avg = temp.hours_remaining / zoneTemp.lines.length;
+    temp.hours_completed_avg = (temp.hours_completed / zoneTemp.lines.length).toFixed(0);
+    temp.hours_remaining_avg = (temp.hours_remaining / zoneTemp.lines.length).toFixed(0);
+    temp.target_presant = temp.target_presant.toFixed(0);
     result.push(temp);
   }
 
