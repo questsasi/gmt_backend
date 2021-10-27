@@ -171,9 +171,9 @@ function processLineData(zoneObj) {
       lines[line].achieved = getAchieved(lines[line].targets[0].productions);
       lines[line].productions = lines[line].targets[0].productions;
       let oneHrCount = lines[line].target_count / lines[line].production_hrs;
-      lines[line].presant = (oneHrCount * lines[line].productions.length);
+      lines[line].presant = (oneHrCount * lines[line].productions.length).toFixed(0);
       lines[line].percent = ((lines[line].achieved / lines[line].presant) * 100).toFixed(2);
-      lines[line].difference = lines[line].achieved - lines[line].presant;
+      lines[line].difference = (lines[line].achieved - lines[line].presant).toFixed(0);
       lines[line].presant_hrs = lines[line].productions.length;
       lines[line].remaining_hrs = lines[line].production_hrs - lines[line].productions.length;
 
