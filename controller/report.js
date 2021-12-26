@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var _ = require("underscore");
 
-const { zone, line, target, production, buyer, style, sequelize } = require('../models/index');
+const { factory, zone, line, target, production, buyer, style, sequelize } = require('../models/index');
 const errorHandler = require('../util/errorHandler');
 
 line.hasOne(target, { foreignKey: 'line_id' });
@@ -151,6 +151,86 @@ router.get('/lines/:date', async function (req, res, next) {
   }
 });
 
+router.get('/factory/:date', async function (req, res, next) {
+  try {
+    const rawData = await factory.findOne(
+      {
+        model: factory,
+        attributes: ['id', 'factory_name'],
+        required: true,
+        where: {
+          id: 1
+        },
+        include: [{
+          model: zone,
+          attributes: [
+            ["id", "zone_id"], "zone_name"
+          ],
+          required: true,
+          order: [
+            ['id', 'ASC']
+          ],
+          include: [{
+            model: line,
+            attributes: [
+              ['id', 'line_id'], 'line_name'
+            ],
+            required: true,
+            order: [
+              ['id', 'ASC']
+            ],
+            include: [{
+              model: target,
+              attributes: [
+                ['id', 'target_id'], 'production_hrs', 'target_date', ['target', 'target_count']
+              ],
+              required: true,
+              order: [
+                ['id', 'ASC']
+              ],
+              where: {
+                target_date: req.params.date
+              },
+              include: [{
+                model: production,
+                attributes: [
+                  ['id', 'production_id'], 'production_date', 'hour', 'output'
+                ],
+                required: true,
+                order: [
+                  ['id', 'ASC']
+                ],
+                where: {
+                  production_date: req.params.date
+                },
+                include: [{
+                  model: buyer,
+                  as: 'buyer',
+                  required: true,
+                  attributes: [['id', 'buyer_id'], 'buyer_name']
+                }, {
+                  model: style,
+                  as: 'style',
+                  required: true,
+                  attributes: [['id', 'style_id'], 'style_name']
+                }]
+              }]
+            }]
+          }]
+        }]
+      });
+
+    res.status(200).json({
+      success: true,
+      status: 1,
+      message: "Data Fetched",
+      data: processFactoryData(rawData)
+    });
+  } catch (error) {
+    returnObj = errorHandler(error);
+    res.status(returnObj.code).json(returnObj.data);
+  }
+});
 
 
 function processLineData(zoneObj) {
@@ -266,6 +346,29 @@ function processZoneData(zoneObj) {
     result.push(temp);
   }
 
+  return result;
+}
+
+function processFactoryData(rawData) {
+  let zoneResult = processZoneData(rawData.zones);
+  let result = {
+    "factory_id": rawData.id,
+    "factory_name": rawData.factory_name,
+    "zone_count": zoneResult.length,
+    "line_count": zoneResult.reduce((sum, obj) => sum + parseInt(obj.line_count), 0),
+    "target_output": zoneResult.reduce((sum, obj) => sum + parseInt(obj.target_output), 0),
+    "target_hrs": zoneResult.reduce((sum, obj) => sum + parseInt(obj.target_hrs), 0),
+    "hours_completed": zoneResult.reduce((sum, obj) => sum + parseInt(obj.hours_completed), 0),
+    "hours_remaining": zoneResult.reduce((sum, obj) => sum + parseInt(obj.hours_remaining), 0),
+    "target_achieved": zoneResult.reduce((sum, obj) => sum + parseInt(obj.target_achieved), 0),
+    "target_presant": zoneResult.reduce((sum, obj) => sum + parseInt(obj.target_presant), 0),
+    "target_diff": zoneResult.reduce((sum, obj) => sum + parseInt(obj.target_diff), 0),
+    "acheieved_percent": (zoneResult.reduce((sum, obj) => sum + parseInt(obj.acheieved_percent), 0) / zoneResult.length).toFixed(0),
+    "target_hrs_avg": (zoneResult.reduce((sum, obj) => sum + parseInt(obj.target_hrs_avg), 0) / zoneResult.length).toFixed(0),
+    "hours_completed_avg": (zoneResult.reduce((sum, obj) => sum + parseInt(obj.hours_completed_avg), 0) / zoneResult.length).toFixed(0),
+    "hours_remaining_avg": (zoneResult.reduce((sum, obj) => sum + parseInt(obj.hours_remaining_avg), 0) / zoneResult.length).toFixed(0)
+    // zoneResult: processZoneData(rawData.zones)
+  };
   return result;
 }
 
