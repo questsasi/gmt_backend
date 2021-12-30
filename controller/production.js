@@ -18,15 +18,30 @@ line.hasMany(target, { foreignKey: 'line_id' });
 target.hasMany(production, { foreignKey: 'target_id' });
 target.belongsTo(style, { foreignKey: 'style_id' });
 target.belongsToMany(buyer, { foreignKey: 'buyer_id', through: target });
-production.belongsTo(buyer, { as: "buyer", foreignKey: "buyer_id"});
-buyer.hasMany(production, { as: "productions", foreignKey: "buyer_id"});
-production.belongsTo(style, { as: "style", foreignKey: "style_id"});
-style.hasMany(production, { as: "productions", foreignKey: "style_id"});
+production.belongsTo(buyer, { as: "buyer", foreignKey: "buyer_id" });
+buyer.hasMany(production, { as: "productions", foreignKey: "buyer_id" });
+production.belongsTo(style, { as: "style", foreignKey: "style_id" });
+style.hasMany(production, { as: "productions", foreignKey: "style_id" });
 
 
 
-router.post('/postproductionhours', async function(req, res, next) {
+router.post('/postproductionhours', async function (req, res, next) {
     try {
+
+        const isExist = await production.findAll({
+            attributes: ['id'],
+            where: {
+                production_date: req.body.production_date,
+                target_id: req.body.target_id,
+                hour: req.body.hour
+            }
+        });
+        if (isExist.length > 0) {
+            returnObj = errorHandler("Data already exist for the given details");
+            res.status(returnObj.code).json(returnObj.data);
+            return;
+        }
+
         const result = await production.create({
             production_date: req.body.production_date,
             hour: req.body.hour,
@@ -49,7 +64,7 @@ router.post('/postproductionhours', async function(req, res, next) {
     }
 });
 
-router.get('/productionhours', async function(req, res, next) {
+router.get('/productionhours', async function (req, res, next) {
     try {
         const result = await factory.findAll({
             raw: true,
@@ -78,7 +93,7 @@ router.get('/productionhours', async function(req, res, next) {
                         }]
                     }]
                 }]
-            }, ]
+            },]
         });
         res.status(200).json({
             success: true,
@@ -94,7 +109,7 @@ router.get('/productionhours', async function(req, res, next) {
     }
 });
 
-router.get('/productionbyhour/:date', async function(req, res, next) {
+router.get('/productionbyhour/:date', async function (req, res, next) {
     try {
         const result = await factory.findAll({
             raw: true,
@@ -124,7 +139,7 @@ router.get('/productionbyhour/:date', async function(req, res, next) {
                         }]
                     }]
                 }]
-            }, ]
+            },]
         });
         res.status(200).json({
             success: true,
@@ -140,7 +155,7 @@ router.get('/productionbyhour/:date', async function(req, res, next) {
     }
 });
 
-router.get('/list/:date', async function(req, res, next) {
+router.get('/list/:date', async function (req, res, next) {
     try {
         const result = await factory.findAll({
             raw: true,
@@ -189,7 +204,7 @@ router.get('/list/:date', async function(req, res, next) {
                         }]
                     }]
                 }]
-            }, ]
+            },]
         });
         var flatResult = makeFlatResult(result);
         res.status(200).json({
@@ -206,7 +221,7 @@ router.get('/list/:date', async function(req, res, next) {
 
 // edit
 
-router.put('/', async function(req, res, next) {
+router.put('/', async function (req, res, next) {
     try {
         const result = await production.update({ output: req.body.output }, { where: { id: req.body.production_id } })
         res.status(200).json({
@@ -229,7 +244,7 @@ router.put('/', async function(req, res, next) {
     }
 });
 
-router.delete('/:id', async function(req, res, next) {
+router.delete('/:id', async function (req, res, next) {
     try {
         const result = await production.destroy({ where: { id: req.params.id } })
         res.status(200).json({
@@ -243,7 +258,7 @@ router.delete('/:id', async function(req, res, next) {
     }
 });
 
-router.get('/getadd/:date', async function(req, res, next) {
+router.get('/getadd/:date', async function (req, res, next) {
     try {
         const result = await zone.findAll({
             include: [{
@@ -264,7 +279,7 @@ router.get('/getadd/:date', async function(req, res, next) {
                             model: style,
                             required: true,
                             attributes: [['id', 'style_id'], 'style_name']
-                        }]                       
+                        }]
                     }
                 ]
             }]

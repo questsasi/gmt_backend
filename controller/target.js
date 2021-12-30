@@ -9,7 +9,7 @@ var express = require('express');
 var router = express.Router();
 var _ = require("underscore");
 
-const { factory, zone, line, target, production, buyer, style } = require('../models/index');
+const { factory, zone, line, target, production, buyer, style, Sequelize } = require('../models/index');
 const errorHandler = require('../util/errorHandler');
 
 factory.hasMany(zone, { foreignKey: 'factory_id' });
@@ -21,10 +21,26 @@ target.belongsTo(buyer, { foreignKey: 'buyer_id' });
 
 
 
-router.post('/', async function(req, res, next) {
+router.post('/', async function (req, res, next) {
     try {
+
+        const isExist = await target.findAll({
+            attributes: ['id'],
+            where: {
+                target_date: req.body.date,
+                line_id: {
+                    [Sequelize.Op.in]: req.body.line_id
+                }
+            }
+        })
+        if (isExist.length > 0) {
+            returnObj = errorHandler("Data already exist for the given details");
+            res.status(returnObj.code).json(returnObj.data);
+            return;
+        }
+
         const result = [];
-        for(var i = 0; i < req.body.line_id.length; i++) {
+        for (var i = 0; i < req.body.line_id.length; i++) {
             const resp = await target.create({
                 line_id: req.body.line_id[i],
                 target: req.body.target,
@@ -44,12 +60,12 @@ router.post('/', async function(req, res, next) {
             }
         });
     } catch (error) {
-      returnObj = errorHandler(error);
-      res.status(returnObj.code).json(returnObj.data);
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
-router.put('/', async function(req, res, next) {
+router.put('/', async function (req, res, next) {
     try {
         const result = await target.update({ target: req.body.target }, { where: { id: req.body.target_id } })
         res.status(200).json({
@@ -61,12 +77,12 @@ router.put('/', async function(req, res, next) {
             }
         });
     } catch (error) {
-      returnObj = errorHandler(error);
-      res.status(returnObj.code).json(returnObj.data);
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
-router.delete('/:id', async function(req, res, next) {
+router.delete('/:id', async function (req, res, next) {
     try {
         const result = await target.destroy({ where: { id: req.params.id } })
         res.status(200).json({
@@ -78,12 +94,12 @@ router.delete('/:id', async function(req, res, next) {
             }
         });
     } catch (error) {
-      returnObj = errorHandler(error);
-      res.status(returnObj.code).json(returnObj.data);
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
-router.get('/list/:date', async function(req, res, next) {
+router.get('/list/:date', async function (req, res, next) {
     try {
         const result = await zone.findAll({
             model: zone,
@@ -134,21 +150,21 @@ router.get('/list/:date', async function(req, res, next) {
                     var production_hours = targetElement.production_hrs;
                     var production_target = targetElement.target;
                     var production_target_date = targetElement.target_date;
-                        var response = {
-                            "zone_id": zone_id,
-                            "zone_name": zone_name,
-                            "line_id": line_id,
-                            "line_name": line_name,
-                            "production_hours": production_hours,
-                            "target": production_target,
-                            "target_date": production_target_date,
-                            "target_id": targetElement.id,
-                            "style_id": targetElement.style.id,
-                            "style_name": targetElement.style.style_name,
-                            "buyer_id": targetElement.buyer.id,
-                            "buyer_name": targetElement.buyer.buyer_name
-                        }
-                        responseArray.push(response);
+                    var response = {
+                        "zone_id": zone_id,
+                        "zone_name": zone_name,
+                        "line_id": line_id,
+                        "line_name": line_name,
+                        "production_hours": production_hours,
+                        "target": production_target,
+                        "target_date": production_target_date,
+                        "target_id": targetElement.id,
+                        "style_id": targetElement.style.id,
+                        "style_name": targetElement.style.style_name,
+                        "buyer_id": targetElement.buyer.id,
+                        "buyer_name": targetElement.buyer.buyer_name
+                    }
+                    responseArray.push(response);
                 }
             }
         }
@@ -159,12 +175,12 @@ router.get('/list/:date', async function(req, res, next) {
             data: responseArray
         });
     } catch (error) {
-      returnObj = errorHandler(error);
-      res.status(returnObj.code).json(returnObj.data);
+        returnObj = errorHandler(error);
+        res.status(returnObj.code).json(returnObj.data);
     }
 });
 
-router.get('/details', async function(req, res, next) {
+router.get('/details', async function (req, res, next) {
     try {
         const zoneResult = await zone.findAll({
             attributes: ['id', 'zone_name'],
