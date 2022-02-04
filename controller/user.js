@@ -12,10 +12,10 @@ router.get('', async function (req, res, next) {
       success: true,
       status: 1,
       message: "User Success",
-      data:  result
+      data: result
     });
   }
-  catch(e) {
+  catch (e) {
     returnObj = errorHandler(error);
     res.status(returnObj.code).json(returnObj.data);
   }
@@ -32,7 +32,7 @@ router.post('/', async function (req, res, next) {
       "contact_number": req.body.contact_number,
       "status": 1,
       "created_on": "CURRENT_TIMESTAMP()"
-    }); 
+    });
 
     res.status().json({
       success: true,
@@ -40,7 +40,7 @@ router.post('/', async function (req, res, next) {
       message: "User created",
       data: result
     });
-  } catch(error) {
+  } catch (error) {
     resultObj = errorHandler(error);
     res.status(resultObj.code).json(resultObj.data);
   }
