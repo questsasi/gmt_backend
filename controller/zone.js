@@ -54,4 +54,39 @@ router.get('/:id', async function (req, res, next) {
   }
 });
 
+
+// Config
+router.post("/create", async function (req, res, next) { 
+  try {
+    const returnData = await zone.findAll({
+      where: {
+        factory_id: req.body.factory,
+        zone_name: req.body.zonename
+      }
+    });
+
+    if (returnData.length > 0) {
+      let returnObj = errorHandler("Zone name already exist");
+      res.status(returnObj.code).json(returnObj.data);
+      return;
+    }
+
+    const result = zone.create({
+      zone_name: req.body.zonename,
+      factory_id: req.body.factory
+    });
+
+    res.status(200).json({
+      success: true,
+      status: 1,
+      message: 'Zone created',
+      data: result
+    });
+
+  } catch (error) {
+    const returnObj = errorHandler(error);
+    res.send(returnObj.code).json(returnObj.data);
+  }
+});
+
 module.exports = router;
