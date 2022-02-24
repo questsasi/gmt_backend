@@ -9,13 +9,8 @@ module.exports = function(sequelize, DataTypes) {
     },
     factory_name: {
       type: DataTypes.STRING(45),
-      allowNull: false,
+      allowNull: true,
       unique: "factory_name_UNIQUE"
-    },
-    status: {
-      type: DataTypes.TINYINT,
-      allowNull: false,
-      defaultValue: 1
     }
   }, {
     sequelize,
@@ -31,19 +26,19 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "factory_name_UNIQUE",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "factory_name" },
-        ]
-      },
-      {
         name: "id_UNIQUE",
         unique: true,
         using: "BTREE",
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "factory_name_UNIQUE",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "factory_name" },
         ]
       },
     ]

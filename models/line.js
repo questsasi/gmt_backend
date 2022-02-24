@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     line_name: {
       type: DataTypes.STRING(45),
-      allowNull: false
+      allowNull: true
     },
     zone_id: {
       type: DataTypes.INTEGER,
